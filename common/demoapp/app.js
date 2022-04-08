@@ -16,8 +16,6 @@ const profile = require('./routes/profile');
 const logout = require('./routes/logout');
 const debug = require('./routes/debug');
 const page = require('./routes/page');
-const loginchoice = require('./routes/loginchoice');
-const esign = require('./routes/esign');
 
 var app = express();
 
@@ -98,8 +96,6 @@ app.use('/profile', profile);
 app.use('/logout', logout);
 app.use('/debug', debug);
 app.use('/page', page);
-app.use('/loginchoice',loginchoice);
-app.use('/esign',esign);
 
 // catch 404 and forward to error handler
 app.use(function(_req, _res, next) {
