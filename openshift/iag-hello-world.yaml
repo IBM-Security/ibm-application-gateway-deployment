@@ -1,0 +1,226 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: ibm-app-gateway-hello-world
+  annotations:
+    openshift.io/display-name: IBM Application Gateway - Hello World
+    iconClass: icon-sso
+    description: |
+      The IBM Application Gateway (IAG) provides a containerized secure Web Reverse proxy which is designed to sit in front of your application, seamlessly adding authentication and authorization protection to your application.
+
+      This template creates a gateway with a fixed configuration for testing deployment.  A certificate and key for HTTPS are generated at runtime.
+objects:
+- apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    creationTimestamp: '2019-12-13T08:19:51Z'
+    name: ${APP_NAME}-config
+    labels:
+      app: ${APP_NAME}
+  data:
+    iag-basic-config.yaml: |
+      version: 21.12
+
+      #
+      # Configure an IAG container with a very basic configuration.  This
+      # configuration will simply configure an IBM Security Verify tenant
+      # as the identity provider, and enable the inbuilt
+      # credential viewer application.
+      #
+
+      server:
+
+        #
+        # Enable the inbuilt credential viewer application.  The 'enable_html'
+        # configuration entry will control whether the HTML file is enabled in
+        # addition to the JSON API.
+        #
+
+        local_applications:
+          cred_viewer:
+            path_segment: "cred-viewer"
+            enable_html: true
+
+        #
+        # Enable OIDC Authentication.
+        # Note that these values from from environment variables
+        # which are coming from a secret created by the template.
+        #
+      identity:
+        oidc:
+          discovery_endpoint: $OIDC_DISCOVERY_ENDPOINT
+          client_id: $OIDC_CLIENT_ID
+          client_secret: $S_OIDC_CLIENT_SECRET
+
+- apiVersion: v1
+  kind: Secret
+  metadata:
+    name: ${APP_NAME}-oidc
+    labels:
+      app: ${APP_NAME}
+  type: Opaque
+  stringData:
+    oidc-discovery-endpoint: ${OIDC_DISCOVERY_ENDPOINT}
+    oidc-client-id: ${OIDC_CLIENT_ID}
+    oidc-client-secret:  ${S_OIDC_CLIENT_SECRET}
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    annotations:
+      deployment.kubernetes.io/revision: "1"
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: ${APP_NAME}
+    name: ${APP_NAME}
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: ${APP_NAME}
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: ${APP_NAME}
+      spec:
+        serviceAccountName: ${SERVICE_ACCOUNT}
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - ${APP_NAME}
+                topologyKey: kubernetes.io/hostname
+        containers:
+        - env:
+          - name: LANG
+            value: ${LANGUAGE}
+          - name: OIDC_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: oidc-client-id
+                name: ${APP_NAME}-oidc
+          - name: S_OIDC_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: oidc-client-secret
+                name: ${APP_NAME}-oidc
+          - name: OIDC_DISCOVERY_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                key: oidc-discovery-endpoint
+                name: ${APP_NAME}-oidc
+          image: docker.io/ibmcom/ibm-application-gateway:${IAG_VERSION}
+          imagePullPolicy: IfNotPresent
+          name: ${APP_NAME}
+          ports:
+          - containerPort: 8443
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          livenessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 8443
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+          - mountPath: /var/iag/config
+            name: ${APP_NAME}-config
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: ${APP_NAME}-config
+          configMap:
+            name: ${APP_NAME}-config
+- apiVersion: v1
+  kind: Route
+  metadata:
+    creationTimestamp: null
+    name: ${APP_NAME}
+    labels:
+      app: ${APP_NAME}
+  spec:
+    host: ${DNS_NAME}
+    port:
+      targetPort: ${APP_NAME}
+    tls:
+      insecureEdgeTerminationPolicy: Redirect
+      termination: passthrough
+    to:
+      kind: Service
+      name: ${APP_NAME}
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: null
+    name: ${APP_NAME}
+    labels:
+      app: ${APP_NAME}
+  spec:
+    ports:
+    - name: ${APP_NAME}
+      port: 443
+      protocol: TCP
+      targetPort: 8443
+    selector:
+      app: ${APP_NAME}
+    sessionAffinity: ClientIP
+    sessionAffinityConfig:
+      clientIP:
+        timeoutSeconds: 10800
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+parameters:
+  - displayName: IAG Version
+    description: IAG Version to be deployed
+    name: IAG_VERSION
+    value: "21.12"
+  - displayName: Application Name
+    description: Application Name in OpenShift
+    name: APP_NAME
+    value: iag-hello-world
+  - displayName: DNS Name
+    description: Fully Qualified DNS Name for Route (uses a default if left blank)
+    name: DNS_NAME
+  - displayName: OIDC Discovery Endpoint
+    description: e.g. yourtenantid.verify.ibm.com/oidc/endpoint/default/.well-known/openid-configuration
+    name: OIDC_DISCOVERY_ENDPOINT
+  - displayName: OIDC Client ID
+    description: Client ID from Verify Application definition
+    name: OIDC_CLIENT_ID
+  - displayName: OIDC Client Secret
+    description: Client Secret from Verify Application definition
+    name: S_OIDC_CLIENT_SECRET
+  - displayName: Language
+    description: Language for log messages (C = English)
+    name: LANGUAGE
+    value: C
+  - displayName: Service Account
+    description: Service Account to be used for containers.
+    name: SERVICE_ACCOUNT
+    value: default

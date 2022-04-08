@@ -1,0 +1,81 @@
+version: 21.12
+
+#
+# Configuration for an IAG container.
+#
+# This file specifies access control and rate limiting policies.  It is
+# designed to be used with a configuration file specifying basic configuration.
+#
+
+policies:
+
+  authorization:
+    - name: "readinfo_access"
+      methods:
+        - "GET"
+      paths:
+        - "/demo/page/admin/readinfo"
+      rule: "anyauth"
+      action: "permit"
+
+    - name: "admin_access"
+      paths:
+        - "/demo/page/admin"
+        - "/demo/page/admin/*"
+      rule: any groupIds = "admin"
+      action: "permit"
+
+    - name: "public"
+      paths:
+        - "/"
+        - "/favicon.ico"
+        - "/demo"
+        - "/demo/stylesheets/*"
+        - "/demo/userlogin"
+        - "/demo/userlogin/pwdcheck"
+      rule: "anyuser"
+      action: "permit"
+
+    - name: "authenticated_users"
+      paths:
+        - "/cred-viewer"
+        - "/demo/logout"
+        - "/demo/profile"
+        - "/demo/userhome"
+        - "/demo/page/limited"
+        - "/demo/page/limited/*"
+        - "/demo/page/allowed"
+        - "/demo/page/allowedpath/*"
+      rule: "anyauth"
+      action: "permit"
+
+    - name: "default_deny"
+      paths:
+        - "*"
+      rule: "()"
+      action: "deny"
+
+  rate_limiting:
+    - name: "hard_limit_by_ip"
+      paths:
+        - "/demo/page/limited/hard"
+      methods:
+        - "*"
+      rule: |
+        ip: true
+        capacity: 5
+        interval: 10
+        reaction: CLOSE
+
+    - name: "limited_by_user"
+      paths:
+        - "/demo/page/limited"
+        - "/demo/page/limited/*"
+      methods:
+        - "*"
+      rule: |
+        credential: 'AZN_CRED_PRINCIPAL_NAME = "*"'
+        ip: false
+        capacity: 3
+        interval: 10
+        reaction: TEMPLATE

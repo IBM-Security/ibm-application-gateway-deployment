@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>應用程式閘道</title>
+  <style>
+*{font-family:'IBM Plex Sans','Helvetica Neue',Arial,sans-serif;letter-spacing:normal;text-rendering:optimizelegibility;user-select:none;-webkit-font-smoothing:antialiased -moz-font-smoothing:antialiased;-ms-font-smoothing:antialiased;-o-font-smoothing:antialiased;}
+em{font-style:inherit;font-weight:700;}
+body{margin:0;padding:0;}
+html{height:100%;min-height:400px;background-color:#a0a0f3;}
+a{color:inherit;text-decoration:inherit;}
+h2{font-size:20px;margin-left:176px;}
+h4{clear:both;padding-top:32px;}
+p{font-size:14px;font-weight:400;margin-left:176px;}
+.container{background-color:#55f;width:50%;max-width:720px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:48px 48px 0px 48px;min-height:300px;}
+.container-short{min-height:240px;}
+.message-box{font-size:1rem;color:#000000;padding:16px;}
+.header{background-color:#161616;border-bottom:1px solid #393939;z-index:10000;height:3rem;color:#fff;padding:0 1rem;font-size:1rem;vertical-align:baseline;line-height:48px;font-weight:600;font-size:16px;}
+.button{line-height:64px;width:50%;height:64px;color:#FFF;background-color:rgb(80,80,80);margin-bottom:-16px;text-align:left;border-style:none;padding-left:12px;font-size:14px;background-color:#4c4c4c;position:absolute;}
+.button-other{left:0;}
+.button-primary{background-color:rgb(15,98,254);position:absolute;right:0;}
+.button-primary:hover{background-color:#0353e9;}
+table{border-collapse:collapse;width:100%;margin-bottom:64px;}
+th{background-color:rgb(224,224,224);width:30%;font-weight:600;}
+td{width:70%;font-weight:400;background-color:rgb(244,244,244);font-weight:400;}
+th,td{border-top:1px solid #f4f4f4;border-bottom:1px solid #e0e0e0;font-size:12px;padding-bottom:0px;padding-right:12px;padding-top:12px;padding-bottom:12px;padding-left:16px;text-align:left;word-break:break-word;}
+.button-container{width:100%;height:64px;background-color:#c6c6c6;margin-left:-48px;margin-right:-48px;border-style:none;position:absolute;bottom:-32px;}
+svg{height:128px;width:128px;float:left;padding-right:48px;}
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span>應用程式閘道</span>
+  </div>
+  <div class="container container-short">
+    <div class="message-box"> 
+<svg focusable="false" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" width="35%" height="35%" viewBox="0 0 48 48" aria-hidden="true" style="will-change: transform;"><path fill="none" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width=".72" d="M19.149,25H14v-6 c0-5.523,4.477-10,10-10s10,4.477,10,10v6l-5.149,0 M39.001,39C39,31,33.77,27.376,27.364,25.857 c2.899-1.291,4.924-4.192,4.924-7.57v-0.4l0,0.001c-2.811-0.37-5.34-1.638-7.287-3.507l0,0C22.664,16.622,19.493,18,16,18 c-0.096,0-0.192-0.001-0.288-0.003l0,0v0.29c0,3.379,2.024,6.28,4.924,7.57C14.23,27.376,9,31,9,39 M24,22c-0.552,0-1,0.448-1,1 s0.448,1,1,1s1-0.448,1-1S24.553,22,24,22z M25,23c3,0,7.288-1.477,7.288-5.113"></path><path fill="none" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10" stroke-width=".72" d="M17.159 27.151L24 38 30.841 27.151M30 36L36 36"></path></svg>      <h2>說明</h2>
+      <p>使用者帳戶作業。</p>
+      <h4>作業</h4>
+      <table>
+        <tr>
+          <th valign="top"><a href="pkmslogout?token=%CREDATTR{tagvalue_session_index}%"><font color="blue"><u>pkmslogout</u></font></a></th>
+          <td>登出現行使用者階段作業</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,42 @@
+extends layout
+
+block content
+  .container
+    .header
+      .header-title
+        h2 #{title}
+  .panel
+    .panel-header
+      center
+        h3 You have successfully accessed this page.
+      |
+      .panel-body
+        table
+          each val, name in pageData
+            tr
+              td #{name}
+              td #{val}
+
+  form(method='POST')
+    .panel
+      .panel-header
+        center
+          h3 Test Form (Posts to this page)
+      |       
+      .panel-body
+        .login-form
+          .control-box
+            span Attr1:
+            |             
+            input(type='text' id='attr1' placeholder='Enter text here' name='attr1')
+              |           
+          .control-box
+            span Attr2:
+            |             
+            input(type='text' id='attr2' placeholder='Enter text here' name='attr2')
+      |       
+      .panel-footer
+        center
+          i.fa.fa-sign-in(aria-hidden='true')
+          |           
+          button.btn.btn-primary(type='submit') POST

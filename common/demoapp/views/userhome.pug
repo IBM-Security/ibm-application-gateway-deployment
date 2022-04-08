@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    .container
+      .header
+        .header-title
+          h2 #{title}
+    .panel.mtm
+      .panel-header
+        center
+          h3 Welcome #{displayName}
+        |       
+        .panel-body
+          .login-form
+            .control-box
+              span It's great to have you here.
+              span
+                a(href='/esign') Sign Document
+            |                     
+    .top-right
+      a(href='/profile') Profile
+      |  
+      a(href='/logout') Logout

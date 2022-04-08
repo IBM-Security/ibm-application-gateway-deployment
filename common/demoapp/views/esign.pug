@@ -1,0 +1,23 @@
+extends layout
+
+block content
+    .container
+      .header
+        .header-title
+          h2 Time to Sign
+    .panel.mtm
+      .panel-header
+        center
+          h3 Time to Sign
+        |       
+        .panel-body
+          .login-form
+            .control-box
+              span Let's do some signing!
+              span
+                a(href='/esign') Sign Another doc
+            |                     
+    .top-right
+      a(href='/profile') Profile
+      |  
+      a(href='/logout') Logout

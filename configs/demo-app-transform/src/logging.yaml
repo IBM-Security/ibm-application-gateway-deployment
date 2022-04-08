@@ -1,0 +1,27 @@
+version: 21.12
+
+#
+# Configuration for an IAG container.
+#
+# This file specifies trace logging.  It is designed to be used with other
+# configuration files specifying basic configuration.
+
+logging:
+
+  tracing:
+
+    #
+    # Enable tracing of HTTP transformation rule processing.
+    #
+
+    - file_name: /var/pdweb/default/trace/http_trans.log
+      component: pdweb.http.transformation
+      level: 9
+
+    #
+    # Enable tracing of Content Injection filtering.
+    #
+
+    - file_name: /var/pdweb/default/trace/filter.log
+      component: pdweb.filter
+      level: 9

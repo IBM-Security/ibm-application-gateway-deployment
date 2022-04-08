@@ -1,0 +1,23 @@
+version: "21.12"
+resource_servers:
+  - path: "/demoapp"
+    connection_type: "ssl"
+    servers:
+      - host: resource-server.au-syd.mybluemix.net
+        port: 443
+    identity_headers:
+      attributes:
+        - attribute: groupIds
+          header: iv_groups
+        - attribute: AZN_CRED_AUTHZN_ID
+          header: iv_user
+      jwt:
+        certificate: "@secret_files/iag.certkey.pem"
+        hdr_name: jwt
+        claims:
+          - text: iamlab.ibm.com
+            name: iss
+          - attr: AZN_CRED_PRINCIPAL_NAME
+            name: sub
+          - attr: AZN_CRED_GROUPS
+          - attr: AZN_CRED_NETWORK_ADDRESS_STR

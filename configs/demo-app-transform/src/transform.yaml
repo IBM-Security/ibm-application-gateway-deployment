@@ -1,0 +1,115 @@
+version: 21.12
+
+#
+# Configuration for an IAG container.
+#
+# This file specifies HTTP Transformation rules and response content
+# injection policies.  It is designed to be used with a configuration file
+# specifying basic configuration.
+#
+
+policies:
+
+  http_transformations:
+    response:
+
+        #
+        # An HTTP transformation policy, applied to all
+        # resources, which will add the 'IAG_HTTP_XFORM_RESP: HELLO_WORLD'
+        # HTTP header to all responses.
+        #
+      - name: "AddResponseHeader"
+        method: "*"
+        paths:
+          - "*"
+        rule: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+
+          <xsl:strip-space elements="*" />
+
+          <xsl:template match="/">
+            <HTTPResponseChange>
+              <xsl:apply-templates />
+            </HTTPResponseChange>
+          </xsl:template>
+
+          <xsl:template match="//HTTPRequest/Headers">
+            <Header action="add" name="IAG_HTTP_XFORM_RESP">HELLO_WORLD</Header>
+          </xsl:template>
+
+          </xsl:stylesheet>
+
+    request:
+
+        #
+        # An HTTP transformation policy, applied to all
+        # resources, which will add the URI of the request to a header
+        # called myuri.
+        #
+      - name: "AddUriToHeader"
+        method: "*"
+        paths:
+          - "*"
+        rule: |
+          <?xml version="1.0" encoding="UTF-8"?>
+          <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+
+          <xsl:strip-space elements="*" />
+
+          <xsl:variable name="varUriGlobal">
+           <xsl:value-of select="//HTTPRequest/RequestLine/URI"/>
+          </xsl:variable>
+
+          <xsl:template match="/">
+            <HTTPRequestChange>
+              <xsl:apply-templates />
+            </HTTPRequestChange>
+          </xsl:template>
+
+          <xsl:template match="//HTTPRequest/Headers">
+          <xsl:choose>
+            <xsl:when test="Header/@name='myuri'" />
+            <xsl:otherwise>
+              <Header action="add" name="myuri"><xsl:value-of select="$varUriGlobal"/></Header>
+            </xsl:otherwise>
+          </xsl:choose>
+          </xsl:template>
+
+          </xsl:stylesheet>
+
+  content_injection:
+
+      #
+      # A content injection policy, applied to the /demo/userhome resource, which
+      # will replace the welcome message displayed to the user.
+      #
+    - name: "content_injection_1"
+      paths:
+        - "/demo/userhome"
+      location: "Welcome"
+      full_line_match: false
+      replace_match: true
+      content: "Well, hello there"
+
+      #
+      # A content injection policy, applied to the /demo/userhome resource, which
+      # will add a link to IBM.COM to the page.
+      #
+    - name: "content_injection_2"
+      paths:
+        - "/demo/userhome"
+      location: "<a href=\"/profile\">"
+      full_line_match: false
+      content: "<a target=\"_newtab\" href=\"https://ibm.com\">IBM.COM</a> "
+
+      #
+      # A full line matching content injection policy, applied to the / resource,
+      # which will add a link to the demo app to the standard home page.
+      # This is a contrived example but shows how the functionality works.
+      #
+    - name: "content_injection_3"
+      paths:
+        - "/"
+      location: "*span*"
+      content: "<a href=\"/demo/userhome\">Demo Home</a><br/>"

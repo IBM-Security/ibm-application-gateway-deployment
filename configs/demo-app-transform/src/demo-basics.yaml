@@ -1,0 +1,88 @@
+version: 21.12
+
+#
+# Configuration for an IAG container. In addition to basic configuration, this
+# file specifies a junction to a demonstration application.
+#
+# HTTP Transformation and response content injection configuration is
+# specified in a separate file.
+#
+
+server:
+
+  #
+  # Specify a server certificate to be used by the container.  The server
+  # certificate was created using an openssl command:
+  #  openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 \
+  #        -out cert.pem
+  #
+  # The key.pem and cert.pem files were then combined into a single file:
+  #  cat cert.pem key.pem > iag.certkey.pem
+  #
+  # To remove the dependency on an external file a base-64 representation of the
+  # certificate can be embedded within this yaml, where the base-64 encoded
+  # certificate is prefixed with 'B64:', for example: "B64:PGhy4KICAgIDxoND5...."
+  #
+  # If no certificate is specified a self-signed certificate will be
+  # automatically created and used by the container.
+  #
+
+  ssl:
+    front_end:
+      certificate: "@secret_files/iag.certkey.pem"
+
+  #
+  # Enable the inbuilt credential viewer application.  The 'enable_html'
+  # configuration entry will control whether the HTML file is enabled in
+  # addition to the JSON API.
+  #
+
+  local_applications:
+    cred_viewer:
+      path_segment: "cred-viewer"
+      enable_html: true
+
+#
+# Specify an IBM Security Verify tenant as the identity provider for the
+# container.  Please note that the values provided below are for illustrative
+# purposes only and don't reflect a real tenant.  A free tenant can be created
+# using the instructions found at the following URL:
+#    https://www.ibm.com/verify/verify-identity
+#
+
+identity:
+  oidc:
+    discovery_endpoint: $OIDC_DISCOVERY_ENDPOINT
+    client_id: $OIDC_CLIENT_ID
+    client_secret: $S_OIDC_CLIENT_SECRET
+
+resource_servers:
+  - path: "/demo"
+    connection_type: "ssl"
+    transparent_path: false
+    servers:
+      - host: $DEMOAPP_HOSTNAME
+        port: $DEMOAPP_PORT
+        ssl:
+          certificate: "@env_files/demoapp.cert.pem"
+    mutual_auth:
+      basic_auth:
+        username: iag
+        password: $S_DEMOAPP_BASIC_PW
+    identity_headers:
+      attributes:
+        - attribute: preferred_username
+          header: iv-user
+        - attribute: AZN_CRED_NETWORK_ADDRESS_STR
+          header: clientip
+        - attribute: acr
+        - attribute: displayName
+        - attribute: email
+        - attribute: mobile_number
+        - attribute: family_name
+        - attribute: given_name
+        - attribute: groupIds
+        - attribute: id_token
+        - attribute: realmName
+        - attribute: tenantId
+        - attribute: uid

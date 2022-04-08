@@ -1,0 +1,20 @@
+extends layout
+
+block content
+    .container
+      .header
+        .header-title
+          h2 #{title}
+    .panel.mtm
+      .panel-header
+        center
+          h3 User Details
+        |
+        .panel-body
+          table
+            each val, name in userJson
+              tr
+                td #{name}
+                td #{val}
+    .top-right
+      a(href='/logout') Logout
