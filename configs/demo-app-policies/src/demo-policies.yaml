@@ -36,9 +36,34 @@ policies:
       rule: "anyuser"
       action: "permit"
 
+    - name: "reauth"
+      paths:
+        - "/demo/page/sensitive"
+      rule: ()
+      action: "reauth"
+      obligation:
+        oidc:
+          acr_values: "urn:ibm:security:policy:id:2"
+
+    - name: mfa_required
+      rule: 'acr = "urn:ibm:security:policy:id:2"'
+      paths:
+        - "/demo/page/mfarequired"
+      action: "permit"
+
+    - name: mfa_required_obligate
+      rule: 'acr != "urn:ibm:security:policy:id:2"'
+      paths:
+        - "/demo/page/mfarequired"
+      action: "obligate"
+      obligation:
+        oidc:
+          acr_values: "urn:ibm:security:policy:id:2"
+
     - name: "authenticated_users"
       paths:
         - "/cred-viewer"
+        - "/demo/debug"
         - "/demo/logout"
         - "/demo/profile"
         - "/demo/userhome"
