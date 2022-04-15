@@ -157,4 +157,7 @@ tr:nth-child(even) {background-color: #f2f2f2;}
   font-size: 24px;
   color: white;
 }
-.
+
+.top-right a {
+  padding-right: 10px;
+}

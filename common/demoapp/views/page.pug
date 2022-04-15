@@ -16,7 +16,6 @@ block content
             tr
               td #{name}
               td #{val}
-
   form(method='POST')
     .panel
       .panel-header
@@ -40,3 +39,7 @@ block content
           i.fa.fa-sign-in(aria-hidden='true')
           |           
           button.btn.btn-primary(type='submit') POST
+  .top-right
+    a(href='/userhome') Home
+    |
+    a(href='/logout') Logout    
