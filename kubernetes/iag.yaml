@@ -6,7 +6,7 @@
 #
 # This template requires configuration and assets in iag-config configmap.
 # Create with:
-#   oc create configmap iag-config --from-file=<config-dir>/src
+#   kubectl create configmap iag-config --from-file=<config-dir>/src
 
 apiVersion: apps/v1
 kind: Deployment
@@ -120,7 +120,7 @@ spec:
         timeoutSeconds: 10800
     type: ClusterIP
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
    name: iag
@@ -136,6 +136,9 @@ spec:
     http:
       paths:
       - path: /
+        pathType: Prefix
         backend:
-          serviceName: iag
-          servicePort: 443
+          service:
+            name: iag
+            port:
+              number: 443
